@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body style="background: #081205;overflow:hidden">
+    <div style="position: absolute; width: 100%; top: 0; height:100%">
+        <svg height="100%" width="100%">
+            <circle cx="50%" cy="0" r="10%" stroke="#3BFF00" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="15%" stroke="#3AD10C" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="21%" stroke="#35AD11" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="28%" stroke="#2E8C12" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="37%" stroke="#287212" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="47%" stroke="#225911" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="58%" stroke="#1B440F" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="70%" stroke="#15330C" stroke-width="3" fill="none"></circle>
+            <circle cx="50%" cy="0" r="83%" stroke="#0E2108" stroke-width="3" fill="none"></circle>
+        </svg>
+        <div id="blokje" style="height: 100px; width: 100px; border-radius: 5px; margin: 0 auto; margin-top: 22.50px; left: 50%; top:0; position: absolute; margin-left:-50px">
+            <img src="Dog_head_clear2.png" style="width: 100%; height:auto;" />
+        </div>
+    </div>
+
+    <footer style="position: fixed; bottom: 0; color: white;">
+        &copy; Lennie Stockman and Louis-Guy Meersseman for Datacommunication at NMCT
+    </footer>
+    <script>
+        console.log("start script");
+        $(document).ready(function () {
+            console.log("ready");
+            //hieronder IP wijzigen naar dat van de laptop waar de Node op zal draaien
+            var socket = io.connect("http://172.30.252.109:3000");
+
+            //De afstand omzetten naar een waarde die past op het scherm
+            var linearScale = d3.scale.linear()
+                 .domain([0, 20])
+                 .range([20, 900]);
+
+
+            //Verbinden met de server via sockets
+            socket.on('connect', function (msg) {
+                console.log('connected to server');
+
+            });
+
+
+            //Binnenkomen van data van de server
+            socket.on('message', function (msg) {
+                //console.log("start message");
+                //console.log(msg);
+                var avg = WeightedAverage(msg.distance);
+                var yVal = linearScale(avg);
+                //console.log(yVal, msg.distance);
+                $('#blokje').animate({ marginTop: Math.floor(yVal) + "px" }, 100);
+                //css('margin-top', Math.floor(yVal) + "px");
+
+
+            });
+
+        });
+        //var i = 0;
+        var distArray = [1.1, 2.2, 3.3, 4.4, 5.5];
+
+        //WeightedAverage berekenen van de afstanden om ze uit te vlakken
+        function WeightedAverage(distance) {
+            distArray.shift();
+            distArray.push(distance);
+            var temp = 0;
+            distArray.forEach(function (x) {
+                //console.log(x);
+                temp += parseFloat(x);
+                //console.log("totaal " + temp);
+                //console.log("lengte " + distArray.length);
+            });
+            var avg = temp / distArray.length;
+            //i++;
+            //console.log(i);
+            return avg;
+        };
+        //console.log("w" + WeightedAverage());
+
+    </script>
+
+
+
+</body>
+</html>

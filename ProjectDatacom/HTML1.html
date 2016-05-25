@@ -1,0 +1,38 @@
+﻿
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Dit is de scanner</h1>
+    <script>
+        console.log("start script");
+        $(document).ready(function () {
+            console.log("ready");
+            var socket = io.connect("http://172.30.33.143");
+            var linearScale = d3.scale.linear()
+                 .domain([0, 20])
+                 .range([20, 1000]);
+
+            socket.on('connected', function (msg) {
+                console.log('connected to server');
+
+            });
+
+            socket.on('message', function (msg) {
+                console.log("start message");
+                var yVal = filter(linearScale(msg.accuracy));
+                console.log(yVal, msg.distance);
+
+            });
+
+        });</script>
+
+
+</body>
+</html>
